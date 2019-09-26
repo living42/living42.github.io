@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-115010957-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>living42</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="living42">
+<meta property="og:url" content="https://living42.github.io/index.html">
+<meta property="og:site_name" content="living42">
+<meta property="og:locale" content="zh-hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="living42">
+  
+    <link rel="alternate" href="/atom.xml" title="living42" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <div id="nav-left">
+        <div id="header-title">
+          <h1 id="logo-wrap">
+            <a href="/" id="logo">living42</a>
+          </h1>
+        </div>
+        <nav id="main-nav">
+          <a id="main-nav-toggle" class="nav-icon"></a>
+          
+            <a class="main-nav-link" href="/">Home</a>
+          
+            <a class="main-nav-link" href="/archives">Archives</a>
+          
+        </nav>
+      </div>
+      <div id="nav-right">
+        <nav id="sub-nav">
+          
+            <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          
+          <a id="nav-github-btn" class="nav-icon" title="GitHub" href="https://github.com/living42"></a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-nuitka-tour" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/posts/nuitka-tour/" class="article-date">
+  <time datetime="2018-08-18T17:51:39.000Z" itemprop="datePublished">2018-08-19</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/nuitka-tour/">编译你的 Python 代码</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>提到 Python，或许你会想到，这是一门解释型的语言，确实是，但是也不是。首先区分一点，从形式上来说，Python 是一门语言，但是他有很多种实现（implementation），你可以参考这份<a href="https://en.wikipedia.org/wiki/List_of_Python_software#Python_implementations" target="_blank" rel="noopener">清单</a>，其中最著名的当然是 <a href="https://github.com/python/cpython" target="_blank" rel="noopener">CPython</a> ，这门语言的参考实现，他是解释执行代码的。但是理论上，他也可以有编译型的实现，这就是我今天要介绍的，他叫 <a href="http://nuitka.net/pages/overview.html" target="_blank" rel="noopener">Nuitka</a>。</p>
+<p><img src="https://raw.githubusercontent.com/kayhayen/Nuitka/develop/doc/images/Nuitka-Logo-Symbol.png" alt="Nuitka Logo"></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>Nuitka 的安装方式非常简单，他是一个普通的 Python Package，你可以从 pypi.org 下载。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pip install nuitka</span><br><span class="line"></span><br><span class="line">python -m nuitka --help</span><br></pre></td></tr></table></figure>
+<p>不过，要正确编译你的代码，还需要一些额外的软件：</p>
+<ul>
+<li>一个 C 语言的编译器，gcc 或者 clang</li>
+<li>CPython，2.6，2.7 或者 3.3 以上。</li>
+</ul>
+<p>官方还没有支持 macOS</p>
+<p>接下来我会用 docker 来演示，使用 python:3.7 镜像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --rm python:3.7 bash</span><br></pre></td></tr></table></figure>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我准备了这样一个程序，他用来计算斐波那契数列</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># app.py</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> fab <span class="keyword">import</span> fab</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        n = int(sys.argv[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">except</span> IndexError:</span><br><span class="line">        n = <span class="number">30</span></span><br><span class="line"></span><br><span class="line">    start_time = time.time()</span><br><span class="line">    result = fab(n)</span><br><span class="line">    end_time = time.time()</span><br><span class="line">    print(<span class="string">f'fab(<span class="subst">&#123;n&#125;</span>) = <span class="subst">&#123;result&#125;</span>'</span>)</span><br><span class="line">    print(<span class="string">f'take <span class="subst">&#123;end_time - start_time:<span class="number">.3</span>f&#125;</span> seconds'</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># fab.py</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fab</span><span class="params">(n)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> n &lt; <span class="number">2</span>:</span><br><span class="line">        <span class="keyword">return</span> n</span><br><span class="line">    <span class="keyword">return</span> fab(n - <span class="number">1</span>) + fab(n - <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    print(<span class="string">f'fab(30) = <span class="subst">&#123;fab(<span class="number">30</span>)&#125;</span>'</span>)</span><br></pre></td></tr></table></figure>
+<p>先试一下用 CPython 执行</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python app.py</span><br><span class="line"><span class="comment"># fab(30) = 832040</span></span><br><span class="line"><span class="comment"># take 0.429 seconds</span></span><br></pre></td></tr></table></figure>
+<h3 id="编译整个程序"><a href="#编译整个程序" class="headerlink" title="编译整个程序"></a>编译整个程序</h3><p>如果你想编译整个程序，执行下面这条指令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m nuitka --portable app.py</span><br></pre></td></tr></table></figure>
+<p>这行命令执行完毕，我们会得到一个文件夹叫做 <code>app.dist</code> 它包含了所有需要的东西，你可以把它拷贝到另一台机器上执行，即使那台机器上没有安装 Python</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> app.dist</span><br><span class="line">./app.exe</span><br><span class="line"><span class="comment"># fab(30) = 832040</span></span><br><span class="line"><span class="comment"># take 0.245 seconds</span></span><br></pre></td></tr></table></figure>
+<h3 id="编译一个模块-包"><a href="#编译一个模块-包" class="headerlink" title="编译一个模块/包"></a>编译一个模块/包</h3><p>Nuitka 也可以编译一个模块</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python -m nuitka --module fab.py</span><br><span class="line"># produce fab.so</span><br></pre></td></tr></table></figure>
+<p>你可以在 CPython 中导入编译后的模块</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from fab import fab</span><br><span class="line">&gt;&gt;&gt; fab</span><br><span class="line">&lt;compiled_function fab at 0x7efe9fa0f3c8&gt;</span><br><span class="line">&gt;&gt;&gt; fab(30)</span><br><span class="line">832040</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="Why"><a href="#Why" class="headerlink" title="Why"></a>Why</h3><p>兼容性。Nuitka 和其他类似的项目的目标不太一样，他更关注与 CPython 之间的兼容性，Nuitka 的测试用例就来自 CPython。只要你的代码可以在 CPython 下面执行，用 Nuitka 编译出来的代码也应该正常执行。</p>
+<p>便于分发。如果你打算用 Python 开发一个客户端应用，那么你要如何交付给你的用户呢？告诉他们，先去 python.org 下载安装 Python XXX 版本，然后下载你的程序，然后执行 <code>pip install</code>…？ 这肯定不是一个好主意。如果可以的话当然是只需要下载程序，然后双击执行。Nuitka 提供了这样的一个可能性。</p>
+<p>加速。因为是编译成机器代码，相比解释执行，减少了一些不必要的 overhead，比如说解析源代码，生成 bytecode。另外，因为编译成机器码的缘故，Nuitka 还可以做一些<a href="http://nuitka.net/doc/user-manual.html#optimization" target="_blank" rel="noopener">优化</a>，作者声称一般能增加两倍的执行速度，所有需要做的只是切换到 Nuitka。</p>
+<p>混淆源代码。或许你要分发给你的用户，但是有不想把源代码给他们。</p>
+<p>以上</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://living42.github.io/posts/nuitka-tour/" data-id="ck10qti0700012jhrnatgyyel" class="article-share-link">Share</a>
+      
+        <a href="https://living42.github.io/posts/nuitka-tour/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-handling-python-enviroments" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/posts/handling-python-enviroments/" class="article-date">
+  <time datetime="2018-03-04T06:17:27.000Z" itemprop="datePublished">2018-03-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/handling-python-enviroments/">Handling Python enviroments</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>python2 将在 2020 年结束支持，许多项目已经开始迁移或者计划迁移到 python3 上面。IPython 已经在新版本中取消 python2 支持；Django 2.0 取消 python2 支持，numpy 即将结束 python2 支持。</p>
+<p>大家终于开始接受 python3 了，不过在这个时期内，处理 python 版本问题变的愈加痛苦。最近 macOS 上流行的包管理工具 Homebrew 做了非常激进的一步，它们把 <code>python</code> 链接到 python3 了，这甚至违反了 <a href="https://www.python.org/dev/peps/pep-0394/" target="_blank" rel="noopener">PEP394</a> 而招致一部分人不满。当我执行 <code>brew upgrade</code> 之后，一些 python 写的工具没法用了。</p>
+<p>所以不得重新整理这些 python 版本的管理工具、策略，很多曾经写下的配置现在已经不知道时什么作用了。趁这个机会重新梳理一遍。</p>
+<p>注意，我使用的操作系统是 macOS，shell 用的是 fish，下面这些设置可能并不适合其他组合。一些工具的使用方式这里不一一列出，如果你感兴趣，可以点击链接查看详细的使用方法。</p>
+<h2 id="命令行工具"><a href="#命令行工具" class="headerlink" title="命令行工具"></a>命令行工具</h2><p>一些命令行工具是用 python 写的，比如说 fabric、ansible、pipenv。这些工具一般来说应该是安装在系统的 python 上面，pip 会自动链接命令到比如说 <code>/usr/local/bin</code> 下面，这样你就可以直接在终端里面输入 <code>fab</code> 而不是 <code>/path/to/python -m fabric</code>。</p>
+<p>不过我不想把系统的 python 搞的乱七八糟的，而且这非常不方便管理，比如说你要更新某个工具的时候，或者你要卸载某个工具的时候，因为不同的工具可能只能运行在某个版本的 python 上，当你要更新、卸载它们的时候，首先你需要找到它们安装在哪个解释器上。</p>
+<p>所以，我使用 <a href="https://github.com/mitsuhiko/pipsi" target="_blank" rel="noopener">pipsi</a> 来管理这些命令行工具。</p>
+<p>相比 Homebrew 上的 python，操作系统自带的 python 更新比较没有那么频繁，所以稍微修改了一点安装方法，能够减少因为更新 python 导致的问题。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -sSL https://bootstrap.pypa.io/get-pip.py | sudo -H /usr/bin/python</span><br><span class="line">sudo /usr/bin/python -m pip install virtualenv</span><br><span class="line">curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py | sudo /usr/bin/python</span><br></pre></td></tr></table></figure>
+<p>这样安装 python 的命令行工具：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pipsi install fabric</span><br></pre></td></tr></table></figure>
+<p>如果需要指定解释器版本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pipsi install --python python3 jupyterlab</span><br></pre></td></tr></table></figure>
+<p>更新、删除某个工具变的非常方便</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pipsi upgrade fabric</span><br><span class="line"># or</span><br><span class="line">pipsi uninstall fabric</span><br></pre></td></tr></table></figure>
+<h2 id="项目执行环境"><a href="#项目执行环境" class="headerlink" title="项目执行环境"></a>项目执行环境</h2><h2 id="virtualenv"><a href="#virtualenv" class="headerlink" title="virtualenv"></a>virtualenv</h2><p>最常用就是 <a href="https://virtualenv.pypa.io/en/stable/" target="_blank" rel="noopener">virtualenv</a> 了，这其实也是一个命令行工具，不过他过于基础, 甚至一些环境管理工具也依赖它，所以比较适合安装在系统级别，在上一节，更具体的，应该把它和这些管理工具安装在同一个 python 解释器上。virtualenv 已经安装在系统的 python 上面了，所以不需要再安装一次，直接用就可以了。</p>
+<p>我一般会把运行环境放在项目的目录下面，这样，在文本编辑器上，可以在项目目录上看到运行环境的目录。一些文本编辑器会索引项目的文件，比如说 Sublime Text ，你可以使用 <code>cmmand + P</code> 非常快速的定位到你想查看的文件。</p>
+<h2 id="virtualenvwrapper-virtualfish"><a href="#virtualenvwrapper-virtualfish" class="headerlink" title="virtualenvwrapper (virtualfish)"></a>virtualenvwrapper (virtualfish)</h2><p>这个工具对我来说，最主要的目是，当我要试用某个第三方包的时候，我希望可以快速的创建一个执行环境，尝试一下，完事之后直接删除这个环境，确保操作系统的整洁。</p>
+<p><a href="https://virtualenvwrapper.readthedocs.io/" target="_blank" rel="noopener">virtualenvwrapper</a> 包含了这样一个命令 <code>mktmpenv</code> 它会自动创建一个临时文件夹，设置好 python 的环境，就像 virtualenv 已将，你可以直接指定 virtualenv 的参数，比如说 <code>--python</code> 设置 python 的版本。额外的，他还会设置一些钩子，当你退出这个环境后 (<code>deactivate</code>)，这个临时文件夹会自动删除。</p>
+<p>不过 virtualenvwrapper 好像不支持 fish， 所以才有另外一个工具，virtualfish ，它做的事情基本上和 virtualenvwrapper 一样，而且还有一个插件，提供了 virtualenvwrapper 一样的命令。而且对于创建临时环境这件事上，做的比 virtualenvwrapper 还要好，不只是在 <code>deactivate</code> 后自动删除，你关闭终端的时候它也会自动删除。</p>
+<p>因为 virtualfish 并没有设置命令行的 entrypoint 所以没办法用 pipsi 安装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/bin/python -m pip install virtualfish</span><br><span class="line">echo &apos;eval (/usr/bin/python -m virtualfish compat_aliases)` &gt;&gt; ~/.config/fish/config.fish</span><br></pre></td></tr></table></figure>
+<p>以上</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://living42.github.io/posts/handling-python-enviroments/" data-id="ck10qthzz00002jhr7nw74j54" class="article-share-link">Share</a>
+      
+        <a href="https://living42.github.io/posts/handling-python-enviroments/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 living42<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'living42';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

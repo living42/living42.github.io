@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-115010957-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Handling Python enviroments | living42</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="python2 将在 2020 年结束支持，许多项目已经开始迁移或者计划迁移到 python3 上面。IPython 已经在新版本中取消 python2 支持；Django 2.0 取消 python2 支持，numpy 即将结束 python2 支持。 大家终于开始接受 python3 了，不过在这个时期内，处理 python 版本问题变的愈加痛苦。最近 macOS 上流行的包管理工具 Home">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Handling Python enviroments">
+<meta property="og:url" content="https://living42.github.io/posts/handling-python-enviroments/index.html">
+<meta property="og:site_name" content="living42">
+<meta property="og:description" content="python2 将在 2020 年结束支持，许多项目已经开始迁移或者计划迁移到 python3 上面。IPython 已经在新版本中取消 python2 支持；Django 2.0 取消 python2 支持，numpy 即将结束 python2 支持。 大家终于开始接受 python3 了，不过在这个时期内，处理 python 版本问题变的愈加痛苦。最近 macOS 上流行的包管理工具 Home">
+<meta property="og:locale" content="zh-hans">
+<meta property="og:updated_time" content="2019-09-26T13:38:16.643Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Handling Python enviroments">
+<meta name="twitter:description" content="python2 将在 2020 年结束支持，许多项目已经开始迁移或者计划迁移到 python3 上面。IPython 已经在新版本中取消 python2 支持；Django 2.0 取消 python2 支持，numpy 即将结束 python2 支持。 大家终于开始接受 python3 了，不过在这个时期内，处理 python 版本问题变的愈加痛苦。最近 macOS 上流行的包管理工具 Home">
+  
+    <link rel="alternate" href="/atom.xml" title="living42" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <div id="nav-left">
+        <div id="header-title">
+          <h1 id="logo-wrap">
+            <a href="/" id="logo">living42</a>
+          </h1>
+        </div>
+        <nav id="main-nav">
+          <a id="main-nav-toggle" class="nav-icon"></a>
+          
+            <a class="main-nav-link" href="/">Home</a>
+          
+            <a class="main-nav-link" href="/archives">Archives</a>
+          
+        </nav>
+      </div>
+      <div id="nav-right">
+        <nav id="sub-nav">
+          
+            <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          
+          <a id="nav-github-btn" class="nav-icon" title="GitHub" href="https://github.com/living42"></a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-handling-python-enviroments" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/posts/handling-python-enviroments/" class="article-date">
+  <time datetime="2018-03-04T06:17:27.000Z" itemprop="datePublished">2018-03-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Handling Python enviroments
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>python2 将在 2020 年结束支持，许多项目已经开始迁移或者计划迁移到 python3 上面。IPython 已经在新版本中取消 python2 支持；Django 2.0 取消 python2 支持，numpy 即将结束 python2 支持。</p>
+<p>大家终于开始接受 python3 了，不过在这个时期内，处理 python 版本问题变的愈加痛苦。最近 macOS 上流行的包管理工具 Homebrew 做了非常激进的一步，它们把 <code>python</code> 链接到 python3 了，这甚至违反了 <a href="https://www.python.org/dev/peps/pep-0394/" target="_blank" rel="noopener">PEP394</a> 而招致一部分人不满。当我执行 <code>brew upgrade</code> 之后，一些 python 写的工具没法用了。</p>
+<p>所以不得重新整理这些 python 版本的管理工具、策略，很多曾经写下的配置现在已经不知道时什么作用了。趁这个机会重新梳理一遍。</p>
+<p>注意，我使用的操作系统是 macOS，shell 用的是 fish，下面这些设置可能并不适合其他组合。一些工具的使用方式这里不一一列出，如果你感兴趣，可以点击链接查看详细的使用方法。</p>
+<h2 id="命令行工具"><a href="#命令行工具" class="headerlink" title="命令行工具"></a>命令行工具</h2><p>一些命令行工具是用 python 写的，比如说 fabric、ansible、pipenv。这些工具一般来说应该是安装在系统的 python 上面，pip 会自动链接命令到比如说 <code>/usr/local/bin</code> 下面，这样你就可以直接在终端里面输入 <code>fab</code> 而不是 <code>/path/to/python -m fabric</code>。</p>
+<p>不过我不想把系统的 python 搞的乱七八糟的，而且这非常不方便管理，比如说你要更新某个工具的时候，或者你要卸载某个工具的时候，因为不同的工具可能只能运行在某个版本的 python 上，当你要更新、卸载它们的时候，首先你需要找到它们安装在哪个解释器上。</p>
+<p>所以，我使用 <a href="https://github.com/mitsuhiko/pipsi" target="_blank" rel="noopener">pipsi</a> 来管理这些命令行工具。</p>
+<p>相比 Homebrew 上的 python，操作系统自带的 python 更新比较没有那么频繁，所以稍微修改了一点安装方法，能够减少因为更新 python 导致的问题。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -sSL https://bootstrap.pypa.io/get-pip.py | sudo -H /usr/bin/python</span><br><span class="line">sudo /usr/bin/python -m pip install virtualenv</span><br><span class="line">curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py | sudo /usr/bin/python</span><br></pre></td></tr></table></figure>
+<p>这样安装 python 的命令行工具：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pipsi install fabric</span><br></pre></td></tr></table></figure>
+<p>如果需要指定解释器版本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pipsi install --python python3 jupyterlab</span><br></pre></td></tr></table></figure>
+<p>更新、删除某个工具变的非常方便</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pipsi upgrade fabric</span><br><span class="line"># or</span><br><span class="line">pipsi uninstall fabric</span><br></pre></td></tr></table></figure>
+<h2 id="项目执行环境"><a href="#项目执行环境" class="headerlink" title="项目执行环境"></a>项目执行环境</h2><h2 id="virtualenv"><a href="#virtualenv" class="headerlink" title="virtualenv"></a>virtualenv</h2><p>最常用就是 <a href="https://virtualenv.pypa.io/en/stable/" target="_blank" rel="noopener">virtualenv</a> 了，这其实也是一个命令行工具，不过他过于基础, 甚至一些环境管理工具也依赖它，所以比较适合安装在系统级别，在上一节，更具体的，应该把它和这些管理工具安装在同一个 python 解释器上。virtualenv 已经安装在系统的 python 上面了，所以不需要再安装一次，直接用就可以了。</p>
+<p>我一般会把运行环境放在项目的目录下面，这样，在文本编辑器上，可以在项目目录上看到运行环境的目录。一些文本编辑器会索引项目的文件，比如说 Sublime Text ，你可以使用 <code>cmmand + P</code> 非常快速的定位到你想查看的文件。</p>
+<h2 id="virtualenvwrapper-virtualfish"><a href="#virtualenvwrapper-virtualfish" class="headerlink" title="virtualenvwrapper (virtualfish)"></a>virtualenvwrapper (virtualfish)</h2><p>这个工具对我来说，最主要的目是，当我要试用某个第三方包的时候，我希望可以快速的创建一个执行环境，尝试一下，完事之后直接删除这个环境，确保操作系统的整洁。</p>
+<p><a href="https://virtualenvwrapper.readthedocs.io/" target="_blank" rel="noopener">virtualenvwrapper</a> 包含了这样一个命令 <code>mktmpenv</code> 它会自动创建一个临时文件夹，设置好 python 的环境，就像 virtualenv 已将，你可以直接指定 virtualenv 的参数，比如说 <code>--python</code> 设置 python 的版本。额外的，他还会设置一些钩子，当你退出这个环境后 (<code>deactivate</code>)，这个临时文件夹会自动删除。</p>
+<p>不过 virtualenvwrapper 好像不支持 fish， 所以才有另外一个工具，virtualfish ，它做的事情基本上和 virtualenvwrapper 一样，而且还有一个插件，提供了 virtualenvwrapper 一样的命令。而且对于创建临时环境这件事上，做的比 virtualenvwrapper 还要好，不只是在 <code>deactivate</code> 后自动删除，你关闭终端的时候它也会自动删除。</p>
+<p>因为 virtualfish 并没有设置命令行的 entrypoint 所以没办法用 pipsi 安装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/bin/python -m pip install virtualfish</span><br><span class="line">echo &apos;eval (/usr/bin/python -m virtualfish compat_aliases)` &gt;&gt; ~/.config/fish/config.fish</span><br></pre></td></tr></table></figure>
+<p>以上</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://living42.github.io/posts/handling-python-enviroments/" data-id="ck10qthzz00002jhr7nw74j54" class="article-share-link">Share</a>
+      
+        <a href="https://living42.github.io/posts/handling-python-enviroments/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/posts/nuitka-tour/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          编译你的 Python 代码
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 living42<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'living42';
+  
+  var disqus_url = 'https://living42.github.io/posts/handling-python-enviroments/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
